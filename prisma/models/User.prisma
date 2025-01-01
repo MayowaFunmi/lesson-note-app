@@ -1,9 +1,108 @@
 model User {
+  id            String          @id @default(uuid())
+  username      String         @unique
+  email         String         @unique
+  emailVerified DateTime?       @map("email_verified")
+  phoneNumber String @unique @map("phone_number")
+  password String 
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+  userProfile UserProfile?    
+  dateJoined DateTime @default(now()) @map("date_joined")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+ 
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique @map("user_id")
+  type                     String
+  provider                 String
+  providerAccountId        String @map("provider_account_id")
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id])
+ 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+ 
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+
+  @@map("accounts")
+}
+ 
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+ 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+ 
+  @@index([userId])
+
+  @@map("sessions")
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@unique([identifier, token])
+
+  @@map("verification_tokens")
+}
+ 
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique @map("credetial_id")
+  userId               String @map("user_id")
+  providerAccountId    String @map("provider_account_id")
+  credentialPublicKey  String @map("credential_public_key")
+  counter              Int
+  credentialDeviceType String @map("credential_device_type")
+  credentialBackedUp   Boolean @map("credential_backed_up")
+  transports           String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([userId, credentialID])
+
+  @@map("authenticators")
+}
+
+enum Title {
+  Mr
+  Mrs
+  Miss
+  Dr
+  Prof
+}
+
+model UserProfile {
   id String @id @default(uuid())
-  username String
-  email String @unique
-  phoneNumber String @unique
-  password String
-  dateJoined DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  userId String @unique @map("user_id")
+  title Title
+  firstName String @map("first_name")
+  lastName String @map("last_name")
+  nameOfSchool String @map("name_of_school")
+  schoolAddress String @map("school_address")
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_profiles")
 }

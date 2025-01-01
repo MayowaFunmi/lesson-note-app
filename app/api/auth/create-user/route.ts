@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { hashPassowrd } from "../../providers/passwordHassh";
-import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
@@ -15,13 +15,13 @@ export async function POST(request: Request) {
 
     const userExists = await prisma.user.findFirst({
       where: {
-        OR: [{ email }, { phoneNumber }],
+        OR: [{ username }, { email }, { phoneNumber }],
       },
     });
 
     if (userExists) {
       return NextResponse.json(
-        { message: "User with email and/or phone number exists" },
+        { status: "conflict", message: "User with username, email and/or phone number already exists" },
         { status: 400 }
       );
     }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const hashedPassword = await hashPassowrd(password);
     if (!hashedPassword) {
       return NextResponse.json(
-        { error: "password hash cannot be null" },
+        { message: "password hash cannot be null" },
         { status: 400 }
       );
     }
@@ -42,16 +42,14 @@ export async function POST(request: Request) {
       },
     });
 
-    const { password: _, ...userWithoutPassword } = user;
-    console.log("password: ", _);
     return NextResponse.json(
-      { message: "User created successfully", data: userWithoutPassword },
+      { status: "success", message: "User created successfully", data: user },
       { status: 201 }
     );
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json(
-      { error: "An unexpected error occurred." },
+      { status: "An unexpected error occurred." },
       { status: 500 }
     );
   }
