@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getSession } from 'next-auth/react';
 
 const apiRequest = axios.create({
   baseURL: 'http://localhost:3000',
@@ -7,30 +8,33 @@ const apiRequest = axios.create({
   }
 })
 
-// apiClient.interceptors.request.use(async function (config) {
-//   try {
-//       const session = await getSession()
-      
-//       if (session && session?.user && session?.user?.accessToken?.value) {
-//           config.headers.Authorization = `Bearer ${session?.user?.accessToken?.value}`;
-//       }
-      
-//   } catch (error) {
-//       throw new Error(error?.response?.data?.message)
-//   }
-//   return config;
-// });
+apiRequest.interceptors.request.use(
+  async function (config) {
+    try {
+      const session = await getSession();
+      if (session && session?.user?.data) {
+        if (config.headers) {
+          config.headers.Authorization = `Bearer ${session?.user?.data}`;
+        }
+      }
+    } catch (error) {
+      console.error("Error in request interceptor:", error);
+    }
+    return config;
+  },
+  function (error) {
+    // Handle errors from the request setup
+    return Promise.reject(error);
+  }
+);
 
-// apiClient.interceptors.response.use(
-//   (response) => {
-//       Nprogress.done()
-//       return response
-//   },
-//   (error) => {
-//       Nprogress.done()
-      
-//       return Promise.reject(error)
-//   },
-// )
+apiRequest.interceptors.response.use(
+  (response) => {
+      return response
+  },
+  (error) => {      
+      return Promise.reject(error)
+  },
+)
 
 export { apiRequest }

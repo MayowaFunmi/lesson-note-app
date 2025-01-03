@@ -19,9 +19,9 @@ export const authOptions = {
             username: credentials.username,
             password: credentials.password
           })
-          const { user, token } = response;
-          if (user && token) {
-            const res = { ...user, token }
+          const { user, data } = response.data;
+          if (user && data) {
+            const res = { ...user, data }
             return res;
           } else {
             throw new Error("Invalid login response")

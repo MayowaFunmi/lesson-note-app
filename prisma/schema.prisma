@@ -26,6 +26,28 @@ model Subjects {
   @@map("subjects")
 }
 
+model Role {
+  id        String      @id @default(uuid())
+  name      String      @unique
+  users     UserRole[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@map("roles")
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId]) // Ensure a user cannot have the same role multiple times
+  @@map("user_roles")
+}
+
 model User {
   id            String          @id @default(uuid())
   username      String         @unique
@@ -37,6 +59,7 @@ model User {
   sessions      Session[]
   // Optional for WebAuthn support
   Authenticator Authenticator[]
+  roles       UserRole[]
   userProfile UserProfile?    
   teacher LessonNote?
   dateJoined DateTime @default(now()) @map("date_joined")

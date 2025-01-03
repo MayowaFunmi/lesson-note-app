@@ -11,7 +11,7 @@ import { LoginSchema } from "@/app/schemas/authSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ErrorFeedback from "../ErrorFeedback";
 import { signIn } from "next-auth/react";
-import { fail_notify } from "@/app/utils/constants";
+import { fail_notify, success_notify } from "@/app/utils/constants";
 import { useRouter } from "next/navigation";
 
 const Login = () => {
@@ -41,6 +41,7 @@ const Login = () => {
       fail_notify(result?.error);
       setIsLoading(false);
     } else {
+      success_notify("Login successful");
       router.push("/redirect");
     }
   };

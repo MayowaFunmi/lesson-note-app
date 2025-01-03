@@ -19,14 +19,35 @@ export interface UserResponseData {
 }
 
 export interface GenericResponse {
-  status: string
-  message: string
-  data: UserResponseData
+  data: {
+    status?: string
+    message: string
+    data?: object | string | null
+  }
 }
 
  export interface LoginResponseData {
-  status: string
-  message: string
-  token: string
-  user: UserResponseData
+  data: {
+    status?: string;
+    message: string;
+    data: string;
+    user: UserResponseData
+  };
+ }
+
+ export interface Session {
+  user: {
+    email: string
+    id: string
+    username: string
+    emailVerified: boolean
+    phoneNumber: string
+    password: string
+    dateJoined: string
+    updatedAt: string
+    data: string // token
+    iat: number
+    exp: number
+    jti: string
+  }
  }

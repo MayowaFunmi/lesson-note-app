@@ -1,11 +1,11 @@
-import { userController } from "@/app/backend/controllers/auth/userController";
+import { roleController } from "@/app/backend/controllers/roleController";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
-    const user = await userController.register(request);
+    const role = await roleController.createRole(request)
     return NextResponse.json(
-      { data: user },
+      { data: role },
       { status: 201 }
     )
   } catch (error) {

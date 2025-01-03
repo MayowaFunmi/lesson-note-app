@@ -67,7 +67,7 @@ const SignUp = () => {
       onSuccess: (response) => {
         if (response.status === "success") {
           reset()
-          success_notify(response.message)
+          success_notify(response?.message)
           router.push('/auth/login')
         }
         setIsLoading(false)
